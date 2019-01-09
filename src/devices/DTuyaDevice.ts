@@ -51,11 +51,11 @@ export class DTuyaDevice implements IDDevice {
     }
 
     toggle(params) {
-        console.log('got params:', params)
-        
         return new Promise((resolve, reject) => {
-            this._tuyaDev.set({ set: !this.dps['1'] }).then((success: boolean) => {
-                resolve({ success: success })
+            let newState: boolean = !this.dps['1'];
+
+            this._tuyaDev.set({ set: newState}).then((success: boolean) => {
+                resolve({ success: success, data: { newDPS: { ...this.dps, '1': newState } } })
             })
         })
     }

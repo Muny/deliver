@@ -4,6 +4,7 @@ import * as http from 'http'
 import { spawn } from 'child_process';
 import { DTuyaDevice } from './devices/DTuyaDevice';
 import { IDDevice } from './devices/IDDevice';
+
 const port = 8032
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
@@ -13,7 +14,7 @@ const DDevices: Map<string, IDDevice> = new Map()
 for (const dID in config.DDevices) {
     const deviceConf = config.DDevices[dID]
 
-    let newDDevice: IDDevice;
+    let newDDevice: IDDevice
 
     switch (deviceConf.type)
     {
@@ -24,31 +25,32 @@ for (const dID in config.DDevices) {
                 deviceConf.ip,
                 deviceConf.devId,
                 deviceConf.localKey
-            );
+            )
             break
         default:
             // TODO: error?
     }
 
     if (newDDevice !== undefined) {
-        DDevices[dID] = newDDevice;
+        DDevices[dID] = newDDevice
     }
 }
 
-const requestHandler = (request: http.IncomingMessage, response: http.ServerResponse) => {
-    console.log(`Received request for path: ${request.url}`)
-
-    // Definitely a more acceptible way to do this...
-    response['noAction'] = function () {
-        response['fail']('No action')
+class ServerResponse extends http.ServerResponse {
+    noAction() {
+        this.fail('No action')
     }
-
-    response['fail'] = function (message: string) {
-        response.end(JSON.stringify({
+    
+    fail(message: string) {
+        this.end(JSON.stringify({
             success: false,
             message: message
         }))
     }
+}
+
+const requestHandler = (request: http.IncomingMessage, response: ServerResponse) => {
+    console.log(`Received request for path: ${request.url}`)
 
     let bodyChunks = [];
 
@@ -80,7 +82,8 @@ const requestHandler = (request: http.IncomingMessage, response: http.ServerResp
                         
                         DDevice[action](params).then((result) => {
                             response.end(JSON.stringify({
-                                success: result.success
+                                success: result.success,
+                                data: result.data
                             }))
                         })
                     } else {
