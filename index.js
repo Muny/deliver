@@ -1,5 +1,8 @@
 const { spawn } = require('child_process')
 const fs = require('fs')
+const TuyaDevice = require('tuyapi')
+
+console.log(TuyaDevice)
 
 const http = require('http')
 const port = 8032
