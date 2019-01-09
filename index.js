@@ -1,13 +1,42 @@
-const { spawn } = require('child_process')
 const fs = require('fs')
 const TuyaDevice = require('tuyapi')
 
-console.log(TuyaDevice)
+
 
 const http = require('http')
 const port = 8032
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
+
+const TuyaDevices = {
+
+}
+
+for (const deviceName in config.devices) {
+    const deviceConf = config.devices[deviceName];
+    TuyaDevices[deviceName] = new TuyaDevice({
+        ip: deviceConf.ip,
+        id: deviceConf.id,
+        key: deviceConf.localKey,
+        persistentConnection: true
+    })
+
+    TuyaDevices[deviceName].on('connected', () => {
+        console.log(`${deviceName} connected`)
+    })
+
+    TuyaDevices[deviceName].on('disconnected', () => {
+        console.log(`${deviceName} disconnected`)
+    })
+
+    TuyaDevices[deviceName].on('error', (err) => {
+        console.log(`${deviceName} error: `, err)
+    })
+
+
+
+    TuyaDevices[deviceName].connect();
+}
 
 const requestHandler = (request, response) => {
     console.log(`Received request for path: ${request.url}`)
@@ -26,7 +55,7 @@ const requestHandler = (request, response) => {
 
             console.log(`Device: ${JSON.stringify(device)}`)
 
-            setdps = spawn('tuya-cli', [
+            /*setdps = spawn('tuya-cli', [
                 'set',
                 '--ip',
                 device.ip,
@@ -40,6 +69,11 @@ const requestHandler = (request, response) => {
 
             setdps.on('close', (code) => {
                 console.log(`command exited with code ${code}`)
+                device.state = !device.state
+            })*/
+
+            TuyaDevices[deviceName].set({ set: !device.state }).then(() => {
+                console.log('Set success')
                 device.state = !device.state
             })
 
