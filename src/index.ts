@@ -36,20 +36,33 @@ for (const dID in config.DDevices) {
     }
 }
 
-class ServerResponse extends http.ServerResponse {
+// Still probably a better way to do this...
+class ExtendedResponse {
+    response: http.ServerResponse;
+
+    constructor(response: http.ServerResponse) {
+        this.response = response
+    }
+
+    end(cb) {
+        this.response.end(cb)
+    }
+
     noAction() {
         this.fail('No action')
     }
     
     fail(message: string) {
-        this.end(JSON.stringify({
+        this.response.end(JSON.stringify({
             success: false,
             message: message
         }))
     }
 }
 
-const requestHandler = (request: http.IncomingMessage, response: ServerResponse) => {
+const requestHandler = (request: http.IncomingMessage, _resp: http.ServerResponse) => {
+    let response = new ExtendedResponse(_resp)
+
     console.log(`Received request for path: ${request.url}`)
 
     let bodyChunks = [];
@@ -87,14 +100,14 @@ const requestHandler = (request: http.IncomingMessage, response: ServerResponse)
                             }))
                         })
                     } else {
-                        response['fail'](`No such action '${action}' on device of type '${DDevice.genericName}'`)
+                        response.fail(`No such action '${action}' on device of type '${DDevice.genericName}'`)
                     }
                 } else {
-                    response['fail']('Unknown device ID')
+                    response.fail('Unknown device ID')
                 }
                 break
             default:
-                response['fail']('Unknown specifier')
+                response.fail('Unknown specifier')
                 break
         }
     })
