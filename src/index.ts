@@ -1,73 +1,100 @@
 import * as fs from 'fs'
-import * as TuyaDevice from 'tuyapi'
 
 import * as http from 'http'
+import { spawn } from 'child_process';
+import { DTuyaDevice } from './devices/DTuyaDevice';
+import { IDDevice } from './devices/IDDevice';
 const port = 8032
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
 
-const TuyaDevices = {
+const DDevices: Map<string, IDDevice> = new Map()
 
-}
+for (const dID in config.DDevices) {
+    const deviceConf = config.DDevices[dID]
 
-for (const deviceName in config.devices) {
-    const deviceConf = config.devices[deviceName]
+    let newDDevice: IDDevice;
 
-    const tuyaDev = new TuyaDevice.default({
-        ip: deviceConf.ip,
-        id: deviceConf.id,
-        key: deviceConf.localKey,
-        persistentConnection: true
-    })
-
-    tuyaDev.on('connected', () => {
-        console.log(`${deviceName} connected`)
-    })
-
-    tuyaDev.on('disconnected', () => {
-        console.log(`${deviceName} disconnected`)
-    })
-
-    tuyaDev.on('error', (err: Error) => {
-        console.log(`${deviceName} error: `, err)
-    })
-
-    tuyaDev.connect()
-
-    TuyaDevices[deviceName] = tuyaDev
-}
-
-const requestHandler = (request, response: http.ServerResponse) => {
-    console.log(`Received request for path: ${request.url}`)
-
-    const parts = request.url.split('/')
-    const action = parts[1]
-
-    console.log(`Action requested: ${action}`)
-
-    switch (action)
+    switch (deviceConf.type)
     {
-        case 'toggle':
-            const deviceName = parts[2]
-            const device = config.devices[deviceName]
-
-            TuyaDevices[deviceName].set({ set: !device.state }).then(() => {
-                console.log(`Toggled ${deviceName}`)
-                device.state = !device.state
-
-                response.end(JSON.stringify({
-                    success: true,
-                    newState: device.state,
-                    message: 'State toggle (probably) successful.'
-                }))
-            })
+        case 'DTuyaDevice':
+            newDDevice = new DTuyaDevice(
+                dID,
+                deviceConf.friendlyName,
+                deviceConf.ip,
+                deviceConf.devId,
+                deviceConf.localKey
+            );
             break
         default:
-            response.end(JSON.stringify({
-                success: false,
-                message: 'No action'
-            }))
+            // TODO: error?
     }
+
+    if (newDDevice !== undefined) {
+        DDevices[dID] = newDDevice;
+    }
+}
+
+const requestHandler = (request: http.IncomingMessage, response: http.ServerResponse) => {
+    console.log(`Received request for path: ${request.url}`)
+
+    // Definitely a more acceptible way to do this...
+    response['noAction'] = function () {
+        response['fail']('No action')
+    }
+
+    response['fail'] = function (message: string) {
+        response.end(JSON.stringify({
+            success: false,
+            message: message
+        }))
+    }
+
+    let bodyChunks = [];
+
+    request.on('data', (chunk) => {
+        bodyChunks.push(chunk)
+    })
+
+    request.on('end', () => {
+
+        let body = Buffer.concat(bodyChunks).toString()
+
+        const parts = request.url.split('/')
+        const specifier = parts[1]
+
+        console.log('Specifier:', specifier)
+
+        switch (specifier) {
+            case 'by-id':
+                const DDevice: IDDevice = DDevices[parts[2]];
+
+                if (DDevice !== undefined) {
+                    const action = parts[3];
+
+                    if (DDevice[action] !== undefined) {
+                        let params = {};
+                        if (body != '') {
+                            params = JSON.parse(body)
+                        }
+                        
+                        DDevice[action](params).then((result) => {
+                            response.end(JSON.stringify({
+                                success: result.success
+                            }))
+                        })
+                    } else {
+                        response['fail'](`No such action '${action}' on device of type '${DDevice.genericName}'`)
+                    }
+                } else {
+                    response['fail']('Unknown device ID')
+                }
+                break
+            default:
+                response['fail']('Unknown specifier')
+                break
+        }
+    })
 }
 
 const server = http.createServer(requestHandler)
