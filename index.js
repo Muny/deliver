@@ -55,23 +55,6 @@ const requestHandler = (request, response) => {
 
             console.log(`Device: ${JSON.stringify(device)}`)
 
-            /*setdps = spawn('tuya-cli', [
-                'set',
-                '--ip',
-                device.ip,
-                '--id',
-                device.id,
-                '--key',
-                device.localKey,
-                '--set',
-                (!device.state).toString()
-            ])
-
-            setdps.on('close', (code) => {
-                console.log(`command exited with code ${code}`)
-                device.state = !device.state
-            })*/
-
             TuyaDevices[deviceName].set({ set: !device.state }).then(() => {
                 console.log('Set success')
                 device.state = !device.state

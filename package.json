@@ -1,0 +1,19 @@
+{
+    "name": "deliver",
+    "author": {
+        "name": "Kevin Smith"
+    },
+    "description": "Deliver on the promises of a secure, connected home. (lol)",
+    "version": "0.0.1",
+    "dependencies": {
+        "tuyapi": "^3.2.1"
+    },
+    "repository": {
+        "type": "GitHub Repo",
+        "url": "https://github.com/Muny-/deliver"
+    },
+    "license": "Fair",
+    "devDependencies": {
+
+    }
+}
