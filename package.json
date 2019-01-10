@@ -6,7 +6,10 @@
     "description": "Deliver on the promises of a secure, connected home. (lol)",
     "version": "0.0.1",
     "dependencies": {
+        "body-parser": "^1.18.3",
+        "express": "^4.16.4",
         "http-mitm-proxy": "^0.6.1",
+        "pug": "^2.0.3",
         "tuyapi": "^3.2.1"
     },
     "repository": {
@@ -15,11 +18,13 @@
     },
     "license": "Fair",
     "devDependencies": {
+        "@types/express": "^4.16.0",
         "@types/node": "^10.12.18",
         "ts-node": "^7.0.0",
         "typescript": "^2.9.2"
     },
     "scripts": {
-        "start:dev": "node --inspect=5858 -r ts-node/register src/index.ts"
+        "dev": "ts-node src/server.ts",
+        "start:dev": "node --inspect=5858 -r ts-node/register src/server.ts"
     }
 }

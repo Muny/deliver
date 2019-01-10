@@ -1,1 +1,5 @@
 * make actions only available to appropriate tuya device types [Electrical_Socket]
+* start organizing for web interface
+* start web interface (switch to express & use pug?)
+* make TuyaProxyImporter an actual importer (multi-device) 
+    - Create new Importer interface?

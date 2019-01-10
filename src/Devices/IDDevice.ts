@@ -1,5 +1,7 @@
 export interface IDDevice {
     genericName: string
     friendlyName: string
-    dID: string
+    deliverId: string
+    supportedActions: Map<string, Function>
+    serialize()
 }

@@ -4,14 +4,14 @@ import { DataPacket } from './DataPackets/DataPacket'
 import { MonitoredElectricalSocketData } from './DataPackets/MonitoredElectricalSocketData'
 
 enum DTuyaDeviceType {
-    Unknown = 0,
-    Electrical_Socket = 1
+    Unknown,
+    Electrical_Socket
 }
 
 export class DTuyaDevice implements IDDevice {
     genericName: string = 'Tuya Device'
     friendlyName: string
-    dID: string
+    deliverId: string
 
     tuyaProductId: string
     dTuyaDeviceType: DTuyaDeviceType
@@ -23,9 +23,9 @@ export class DTuyaDevice implements IDDevice {
     dps: any
     parsedDps: DataPacket
 
-    constructor(dID: string, friendlyName: string, tuyaProductId: string, devId: string, localKey: string) {
+    constructor(deliverId: string, friendlyName: string, tuyaProductId: string, devId: string, localKey: string) {
 
-        this.dID = dID
+        this.deliverId = deliverId
         this.friendlyName = friendlyName
 
         this.tuyaProductId = tuyaProductId
@@ -94,13 +94,34 @@ export class DTuyaDevice implements IDDevice {
         }
     }
 
-    toggle(params) {
-        return new Promise((resolve, reject) => {
-            let newState: boolean = !this.dps['1']
+    // TODO: manage this Map dynamically based on Tuya device type...
+    supportedActions = new Map([
+        [
+            'toggle',
+            (params) => {
+                return new Promise((resolve, reject) => {
+                    let newState: boolean = !this.dps['1']
 
-            this._tuyaDev.set({ set: newState}).then((success: boolean) => {
-                resolve({ success: success, data: { newDps: { ...this.dps, '1': newState } } })
-            })
-        })
+                    this._tuyaDev.set({ set: newState }).then((success: boolean) => {
+                        resolve({ success: success, data: { newParsedDps: this.parseDps({ ...this.dps, '1': newState }) } })
+                    })
+                })
+            }
+        ]
+    ])
+
+    serialize() {
+        return {
+            deliverId: this.deliverId,
+            dTuyaDeviceType: this.dTuyaDeviceType,
+            devId: this.devId,
+            dps: this.dps,
+            friendlyName: this.friendlyName,
+            genericName: this.genericName,
+            localKey: this.localKey,
+            parsedOps: this.parsedDps,
+            supportedActions: Array.from(this.supportedActions.keys()),
+            tuyaProductId: this.tuyaProductId
+        }
     }
 }
