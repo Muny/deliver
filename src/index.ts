@@ -1,9 +1,11 @@
 import * as fs from 'fs'
 
 import * as http from 'http'
-import { spawn } from 'child_process';
-import { DTuyaDevice } from './devices/DTuyaDevice';
-import { IDDevice } from './devices/IDDevice';
+import { DTuyaDevice } from './Devices/DTuyaDevice'
+import { IDDevice } from './Devices/IDDevice'
+import { TuyaProxyImporter } from './DeviceImporters/TuyaProxyImporter'
+
+const mitmproxy = new TuyaProxyImporter()
 
 const port = 8032
 
@@ -22,7 +24,7 @@ for (const dID in config.DDevices) {
             newDDevice = new DTuyaDevice(
                 dID,
                 deviceConf.friendlyName,
-                deviceConf.ip,
+                deviceConf.tuyaProductId,
                 deviceConf.devId,
                 deviceConf.localKey
             )
@@ -38,7 +40,7 @@ for (const dID in config.DDevices) {
 
 // Still probably a better way to do this...
 class ExtendedResponse {
-    response: http.ServerResponse;
+    response: http.ServerResponse
 
     constructor(response: http.ServerResponse) {
         this.response = response
@@ -65,7 +67,7 @@ const requestHandler = (request: http.IncomingMessage, _resp: http.ServerRespons
 
     console.log(`Received request for path: ${request.url}`)
 
-    let bodyChunks = [];
+    let bodyChunks = []
 
     request.on('data', (chunk) => {
         bodyChunks.push(chunk)
@@ -82,13 +84,13 @@ const requestHandler = (request: http.IncomingMessage, _resp: http.ServerRespons
 
         switch (specifier) {
             case 'by-id':
-                const DDevice: IDDevice = DDevices[parts[2]];
+                const DDevice: IDDevice = DDevices[parts[2]]
 
                 if (DDevice !== undefined) {
-                    const action = parts[3];
+                    const action = parts[3]
 
                     if (DDevice[action] !== undefined) {
-                        let params = {};
+                        let params = {}
                         if (body != '') {
                             params = JSON.parse(body)
                         }

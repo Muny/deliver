@@ -6,6 +6,7 @@
     "description": "Deliver on the promises of a secure, connected home. (lol)",
     "version": "0.0.1",
     "dependencies": {
+        "http-mitm-proxy": "^0.6.1",
         "tuyapi": "^3.2.1"
     },
     "repository": {
