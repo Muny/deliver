@@ -1,4 +1,4 @@
-import { DataPacket } from "./DataPacket";
+import { DataPacket } from './DataPacket'
 
 export interface MonitoredElectricalSocketData extends DataPacket {
     state: boolean,

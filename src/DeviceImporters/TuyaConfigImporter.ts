@@ -1,4 +1,4 @@
-import { DTuyaDevice } from "../Devices/DTuyaDevice";
+import { DTuyaDevice } from '../Devices/DTuyaDevice'
 
 export class TuyaConfigImporter {
     static ImportOne(conf): DTuyaDevice {

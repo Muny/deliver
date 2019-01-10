@@ -1,6 +1,6 @@
-import { IDDevice } from './IDDevice';
-import { DTuyaDevice } from './DTuyaDevice';
-import { TuyaConfigImporter } from '../DeviceImporters/TuyaConfigImporter';
+import { IDDevice } from './IDDevice'
+import { DTuyaDevice } from './DTuyaDevice'
+import { TuyaConfigImporter } from '../DeviceImporters/TuyaConfigImporter'
 
 export class DeviceManager {
     Devices: Map<string, IDDevice> = new Map()

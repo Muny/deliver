@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { App } from '../app'
 import { NoSuchDeviceError } from '../Errors/NoSuchDeviceError'
 import { IDDevice } from'../Devices/IDDevice'
-import { NoSuchActionError } from '../Errors/NoSuchActionError';
+import { NoSuchActionError } from '../Errors/NoSuchActionError'
 
 export class Routes {
     public routes(app: App): void {

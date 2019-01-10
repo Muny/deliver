@@ -1,7 +1,7 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import { Routes } from './Routes/Routes'
-import { DeviceManager } from './Devices/DeviceManager';
+import { DeviceManager } from './Devices/DeviceManager'
 
 export class App {
     public express: express.Application
