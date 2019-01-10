@@ -14,7 +14,7 @@ export class App {
         this.express = express.default()
         this.config()
         this.ctrlRoutes.routes(this)
-        this.deviceManager.importDevicesFromConfig(config.DDevices)
+        this.deviceManager.importDevicesFromConfig(config.deliverDevices)
     }
 
     private config(): void {

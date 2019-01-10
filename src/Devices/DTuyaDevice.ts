@@ -59,11 +59,10 @@ export class DTuyaDevice implements IDDevice {
             console.log(`[${friendlyName}] new parsed dps:`, this.parsedDps)
         })
 
-        this._tuyaDev.resolveId().then((ipFound: boolean) => {
-            if (ipFound)
-                this._tuyaDev.connect()
-            else
-                console.error(`[${friendlyName}] unable to resolve IP address for device, can't connect`)
+        this._tuyaDev.resolveId().then(() => {
+            this._tuyaDev.connect()
+        }).catch(() => {
+            console.error(`[${friendlyName}] unable to resolve IP address for device, can't connect`)
         })
     }
 
@@ -102,8 +101,10 @@ export class DTuyaDevice implements IDDevice {
                 return new Promise((resolve, reject) => {
                     let newState: boolean = !this.dps['1']
 
-                    this._tuyaDev.set({ set: newState }).then((success: boolean) => {
-                        resolve({ success: success, data: { newParsedDps: this.parseDps({ ...this.dps, '1': newState }) } })
+                    this._tuyaDev.set({ set: newState }).then(() => {
+                        resolve({ success: true, data: { newParsedDps: this.parseDps({ ...this.dps, '1': newState }) } })
+                    }).catch((err) => {
+                        resolve({ success: false, message: err})
                     })
                 })
             }
