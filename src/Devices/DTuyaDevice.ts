@@ -54,7 +54,6 @@ export class DTuyaDevice implements IDDevice {
 
         this._tuyaDev.on('data', (dat) => {
             this.dps = { ...this.dps, ...dat.dps }
-
             this.parsedDps = this.parseDps(this.dps)
 
             console.log(`[${friendlyName}] new parsed dps:`, this.parsedDps)
@@ -83,10 +82,11 @@ export class DTuyaDevice implements IDDevice {
             case DTuyaDeviceType.Electrical_Socket:
                 let typedDps : MonitoredElectricalSocketData = {
                     state: dps['1'],
+                    timer: dps['2'],
                     voltage: dps['6'] / 10,
-                    current: dps['4'] / 1000
+                    current: dps['4'] / 1000,
+                    power: dps['5'] / 10
                 }
-
                 return typedDps
                 break
             default:

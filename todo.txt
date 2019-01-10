@@ -1,7 +1,1 @@
-* try removing IP from config for Tuya devices
-* power information is in dps:
-    { 
-        '4': current in milliamps,
-        '5': power   in watts * 10,
-        '6': voltage in volts * 10
-    }
+* make actions only available to appropriate tuya device types [Electrical_Socket]
