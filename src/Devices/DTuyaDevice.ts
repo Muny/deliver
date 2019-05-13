@@ -3,11 +3,13 @@ import { IDDevice } from './IDDevice'
 import { DataPacket } from './DataPackets/DataPacket'
 import { MonitoredElectricalSocketData } from './DataPackets/MonitoredElectricalSocketData'
 import { DimmableBulbData } from './DataPackets/DimmableBulbData'
+import { RGBCBulbData } from './DataPackets/RGBCBulbData'
 
 enum DTuyaDeviceType {
     Unknown,
     Electrical_Socket,
-    Dimmable_Bulb
+    Dimmable_Bulb,
+    RGBC_Bulb
 }
 
 export class DTuyaDevice implements IDDevice {
@@ -76,6 +78,9 @@ export class DTuyaDevice implements IDDevice {
             case 'VuypGK66yElOznWQ':
                 this.dTuyaDeviceType = DTuyaDeviceType.Dimmable_Bulb
                 break
+            case 'heeU2AWVxpxfqP6D':
+                this.dTuyaDeviceType = DTuyaDeviceType.RGBC_Bulb
+                break
             default:
                 this.dTuyaDeviceType = DTuyaDeviceType.Unknown
         }
@@ -92,14 +97,19 @@ export class DTuyaDevice implements IDDevice {
                     power: dps['5'] / 10
                 }
                 return typedDps
-                break
             case DTuyaDeviceType.Dimmable_Bulb:
                 let typedDps1: DimmableBulbData = {
                     state: dps['1'],
                     brightness: dps['2']
                 }
-
                 return typedDps1
+            case DTuyaDeviceType.RGBC_Bulb:
+                let typedDps2: RGBCBulbData = {
+                    state: dps['1'],
+                    color: dps['2'],
+                    brightness: dps['3']
+                }
+                return typedDps2
             default:
                 return dps
         }
