@@ -2,10 +2,12 @@ import * as TuyaDevice from 'tuyapi'
 import { IDDevice } from './IDDevice'
 import { DataPacket } from './DataPackets/DataPacket'
 import { MonitoredElectricalSocketData } from './DataPackets/MonitoredElectricalSocketData'
+import { DimmableBulbData } from './DataPackets/DimmableBulbData'
 
 enum DTuyaDeviceType {
     Unknown,
-    Electrical_Socket
+    Electrical_Socket,
+    Dimmable_Bulb
 }
 
 export class DTuyaDevice implements IDDevice {
@@ -71,6 +73,9 @@ export class DTuyaDevice implements IDDevice {
             case 'IVgPyZR1c2OyLlyA':
                 this.dTuyaDeviceType = DTuyaDeviceType.Electrical_Socket
                 break
+            case 'VuypGK66yElOznWQ':
+                this.dTuyaDeviceType = DTuyaDeviceType.Dimmable_Bulb
+                break
             default:
                 this.dTuyaDeviceType = DTuyaDeviceType.Unknown
         }
@@ -88,6 +93,13 @@ export class DTuyaDevice implements IDDevice {
                 }
                 return typedDps
                 break
+            case DTuyaDeviceType.Dimmable_Bulb:
+                let typedDps1: DimmableBulbData = {
+                    state: dps['1'],
+                    brightness: dps['2']
+                }
+
+                return typedDps1
             default:
                 return dps
         }
