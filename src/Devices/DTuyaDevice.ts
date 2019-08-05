@@ -4,12 +4,14 @@ import { DataPacket } from './DataPackets/DataPacket'
 import { MonitoredElectricalSocketData } from './DataPackets/MonitoredElectricalSocketData'
 import { DimmableBulbData } from './DataPackets/DimmableBulbData'
 import { RGBCBulbData } from './DataPackets/RGBCBulbData'
+import { DimmableColorTempBulbData} from './DataPackets/DimmableColorTempBulbData'
 
 enum DTuyaDeviceType {
     Unknown,
     Electrical_Socket,
     Dimmable_Bulb,
-    RGBC_Bulb
+    RGBC_Bulb,
+    Dimmable_ColorTemp_Bulb
 }
 
 export class DTuyaDevice implements IDDevice {
@@ -81,6 +83,8 @@ export class DTuyaDevice implements IDDevice {
             case 'heeU2AWVxpxfqP6D':
                 this.dTuyaDeviceType = DTuyaDeviceType.RGBC_Bulb
                 break
+            case 'IYW4NCDA9tCae8B3':
+                this.dTuyaDeviceType = DTuyaDeviceType.Dimmable_ColorTemp_Bulb
             default:
                 this.dTuyaDeviceType = DTuyaDeviceType.Unknown
         }
@@ -89,27 +93,42 @@ export class DTuyaDevice implements IDDevice {
     parseDps(dps): DataPacket {
         switch (this.dTuyaDeviceType) {
             case DTuyaDeviceType.Electrical_Socket:
-                let typedDps : MonitoredElectricalSocketData = {
-                    state: dps['1'],
-                    timer: dps['2'],
-                    voltage: dps['6'] / 10,
-                    current: dps['4'] / 1000,
-                    power: dps['5'] / 10
+                {
+                    let typedDps: MonitoredElectricalSocketData = {
+                        state: dps['1'],
+                        timer: dps['2'],
+                        voltage: dps['6'] / 10,
+                        current: dps['4'] / 1000,
+                        power: dps['5'] / 10
+                    }
+                    return typedDps
                 }
-                return typedDps
             case DTuyaDeviceType.Dimmable_Bulb:
-                let typedDps1: DimmableBulbData = {
-                    state: dps['1'],
-                    brightness: dps['2']
+                {
+                    let typedDps: DimmableBulbData = {
+                        state: dps['1'],
+                        brightness: dps['2']
+                    }
+                    return typedDps
                 }
-                return typedDps1
             case DTuyaDeviceType.RGBC_Bulb:
-                let typedDps2: RGBCBulbData = {
-                    state: dps['1'],
-                    color: dps['2'],
-                    brightness: dps['3']
+                {
+                    let typedDps: RGBCBulbData = {
+                        state: dps['1'],
+                        color: dps['2'],
+                        brightness: dps['3']
+                    }
+                    return typedDps
                 }
-                return typedDps2
+            case DTuyaDeviceType.Dimmable_ColorTemp_Bulb:
+                {
+                    let typedDps: DimmableColorTempBulbData = {
+                        state: dps['1'],
+                        brightness: dps['2'],
+                        colorTemp: dps['3']
+                    }
+                    return typedDps
+                }
             default:
                 return dps
         }
